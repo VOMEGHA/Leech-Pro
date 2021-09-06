@@ -18,6 +18,8 @@ from tobrot.helper_funcs.upload_to_tg import upload_to_gdrive, upload_to_tg
 
 
 async def youtube_dl_call_back(bot, update):
+    bot_d = await bot.get_me()
+    GYTDL_CMD = f"{GYTDL_COMMAND}@{bot_d.username}"
     # LOGGER.info(update)
     cb_data = update.data
     get_cf_name = update.message.caption
@@ -174,7 +176,7 @@ async def youtube_dl_call_back(bot, update):
         comd = update.message.reply_to_message.text
         LOGGER.info(comd)
         user_command = comd.split()[0]
-        if user_command == "/" + GYTDL_COMMAND:
+        if user_command in "/" + [GYTDL_COMMAND, GYTDL_CMD]:
             is_cloud = True
         if is_cloud:
             shutil.move(fi_le, "./")

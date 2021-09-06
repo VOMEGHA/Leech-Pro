@@ -23,10 +23,13 @@ async def down_load_media_f(client, message):  # to be removed
     user_command = message.command[0]
     user_id = message.from_user.id
 
+    bot = await client.get_me()
+    TUNZIP_CMD = f"{TELEGRAM_LEECH_COMMAND}@{bot.username}"
+
     if message.reply_to_message is not None:
         the_real_download_location, mess_age = await download_tg(client, message)
         the_real_download_location_g = the_real_download_location
-        if user_command == TELEGRAM_LEECH_UNZIP_COMMAND.lower():
+        if user_command in [TELEGRAM_LEECH_UNZIP_COMMAND.lower(), TUNZIP_CMD.lower()]:
             try:
                 check_ifi_file = get_base_name(the_real_download_location)
                 file_up = await unzip_me(the_real_download_location)

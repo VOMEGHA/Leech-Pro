@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# (c) Shrimadhav U K | gautamajay52 | MaxxRider
+# (c) Shrimadhav U K | gautamajay52 | MaxxRider | KGK06
 
 import asyncio
 import logging
@@ -9,19 +9,7 @@ import time
 from pathlib import Path
 import aria2p
 import requests
-from tobrot import (
-    DOWNLOAD_LOCATION,
-    GLEECH_COMMAND,
-    GLEECH_UNZIP_COMMAND,
-    GLEECH_ZIP_COMMAND,
-    LEECH_COMMAND,
-    LEECH_UNZIP_COMMAND,
-    LEECH_ZIP_COMMAND,
-    LOGGER,
-    YTDL_COMMAND,
-    GPYTDL_COMMAND,
-    PYTDL_COMMAND,
-)
+from tobrot import *
 from tobrot.helper_funcs.admin_check import AdminCheck
 from tobrot.helper_funcs.cloneHelper import CloneHelper
 from tobrot.helper_funcs.download import download_tg
@@ -51,10 +39,22 @@ async def incoming_purge_message_f(client, message):
 
 async def incoming_message_f(client, message):
     """/leech command or /gleech command"""
+    
+    bot = await client.get_me()
+    bu = f"@{bot.username}"
+    LC = f"{LEECH_COMMAND}{bu}"
+    LUC = f"{LEECH_UNZIP_COMMAND}{bu}"
+    LZC = f"{LEECH_ZIP_COMMAND}{bu}"
+    GC = f"{GLEECH_COMMAND}{bu}"
+    GUC = f"{GLEECH_UNZIP_COMMAND}{bu}"
+    GZC = f"{GLEECH_ZIP_COMMAND}{bu}"
+    
     user_command = message.command[0]
     g_id = message.from_user.id
+    name = f"<a href='tg://user?id={g_id}'>{message.from_user.first_name}</a>"
     # get link from the incoming message
-    i_m_sefg = await message.reply_text("Processing...", quote=True)
+    credit = await message.reply_text(f"**Leeching For:** {name}", quote=True)
+    i_m_sefg = await message.reply_text("**Processing...**", quote=True)
     rep_mess = message.reply_to_message
     is_file = False
     dl_url = ''
@@ -69,7 +69,7 @@ async def incoming_message_f(client, message):
             LOGGER.info(dl_url)
             LOGGER.info(cf_name)
         else:
-            if user_command == LEECH_COMMAND.lower():
+            if user_command in [LC.lower(), LEECH_COMMAND.lower()]:
                 await i_m_sefg.edit("No download source provided 🙄")
                 return
             is_file = True
@@ -98,23 +98,23 @@ async def incoming_message_f(client, message):
             aria_i_p = await aria_start()
             # LOGGER.info(aria_i_p)
 
-        await i_m_sefg.edit_text("Added to downloads. Send /status")
+        await i_m_sefg.edit_text(f"**Hey** {name} \n\n**Your Request Has Been Added To Status**\n\n**Send /{STATUS_COMMAND} To Get Status**")
         # try to download the "link"
         is_zip = False
         is_cloud = False
         is_unzip = False
 
-        if user_command == LEECH_UNZIP_COMMAND.lower():
+        if user_command in [LUC.lower(), LEECH_UNZIP_COMMAND.lower()]:
             is_unzip = True
-        elif user_command == LEECH_ZIP_COMMAND.lower():
+        elif user_command in [LZC.lower(), LEECH_ZIP_COMMAND.lower()]:
             is_zip = True
 
-        if user_command == GLEECH_COMMAND.lower():
+        if user_command == GC.lower() or user_command == GLEECH_COMMAND.lower():
             is_cloud = True
-        if user_command == GLEECH_UNZIP_COMMAND.lower():
+        if user_command == GUC.lower() or user_command == GLEECH_UNZIP_COMMAND.lower():
             is_cloud = True
             is_unzip = True
-        elif user_command == GLEECH_ZIP_COMMAND.lower():
+        elif user_command == GZC.lower() or user_command == GLEECH_ZIP_COMMAND.lower():
             is_cloud = True
             is_zip = True
         sagtus, err_message = await call_apropriate_function(
@@ -143,7 +143,7 @@ async def incoming_youtube_dl_f(client, message):
     """ /ytdl command """
     current_user_id = message.from_user.id
 
-    i_m_sefg = await message.reply_text("<code>Prrocessing...🔃</code>", quote=True)
+    i_m_sefg = await message.reply_text("**Prrocessing...🔃**", quote=True)
     # LOGGER.info(message)
     # extract link from message
     if message.reply_to_message:
@@ -163,7 +163,7 @@ async def incoming_youtube_dl_f(client, message):
         await i_m_sefg.edit("<b>🐈 Oops Reply To YTDL Supported Link.</b>")
         return
     if dl_url is not None:
-        await i_m_sefg.edit_text("Extracting Links...")
+        await i_m_sefg.edit_text("**Extracting Links...**")
         # create an unique directory
         user_working_dir = os.path.join(DOWNLOAD_LOCATION, str(current_user_id))
         # create download directory, if not exist
@@ -202,13 +202,15 @@ async def g_yt_playlist(client, message):
     usr_id = message.from_user.id
     is_cloud = False
     url = None
+    bot = await client.get_me()
+    GPYC = f"{GPYTDL_COMMAND}@{bot.username}"
     if message.reply_to_message:
         url = message.reply_to_message.text
-        if user_command == GPYTDL_COMMAND.lower():
+        if user_command in [GPYTDL_COMMAND.lower(), GPYC.lower()]:
             is_cloud = True
     elif len(message.command) == 2:
         url = message.command[1]
-        if user_command == GPYTDL_COMMAND.lower():
+        if user_command in [GPYTDL_COMMAND.lower(), GPYC.lower()]:
             is_cloud = True
     else:
         await message.reply_text("<b> Reply with Youtube Playlist link</b>", quote=True)
@@ -216,7 +218,7 @@ async def g_yt_playlist(client, message):
     if "youtube.com/playlist" in url:
         u_men = message.from_user.mention
         i_m_sefg = await message.reply_text(
-            f"<b>Ok Fine 🐈 {u_men} Bro!!:\n Your Request has been ADDED</b>\n\n <code> Please wait until Upload</code>",
+            f"<b>Ok {u_men} \n Your Request has been ADDED</b>\n\n <code> Please wait until I Download & Upload</code>",
             parse_mode="html",
         )
         await yt_playlist_downg(message, i_m_sefg, client, is_cloud)
